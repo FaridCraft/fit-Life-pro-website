@@ -21,7 +21,7 @@ function App() {
 }
 
 // ============================================
-// NAVBAR COMPONENT
+// NAVBAR COMPONENT - FIXED VERSION
 // ============================================
 function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -36,6 +36,22 @@ function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile menu when clicking a link
+  const handleLinkClick = () => {
+    setIsMobileMenuOpen(false);
+  };
+
+  // Close mobile menu when resizing to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Navigation links
   const navLinks = [
     { name: 'Home', href: '#home' },
@@ -46,38 +62,51 @@ function Navbar() {
   ];
 
   return (
-    <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
-      <div className="navbar-container">
-        {/* Logo */}
-        <a href="#home" className="navbar-logo">
-          <span className="logo-icon">💪</span>
-          <span className="logo-text">FitLife Pro</span>
-        </a>
+    <>
+      <nav className={`navbar ${isScrolled ? 'navbar-scrolled' : ''}`}>
+        <div className="navbar-container">
+          {/* Logo */}
+          <a href="#home" className="navbar-logo" onClick={handleLinkClick}>
+            <span className="logo-icon">💪</span>
+            <span className="logo-text">FitLife Pro</span>
+          </a>
 
-        {/* Desktop Navigation */}
-        <ul className="navbar-menu">
-          {navLinks.map((link) => (
-            <li key={link.name}>
-              <a href={link.href} className="navbar-link">
-                {link.name}
-              </a>
-            </li>
-          ))}
-        </ul>
+          {/* Desktop Navigation */}
+          <ul className="navbar-menu">
+            {navLinks.map((link) => (
+              <li key={link.name}>
+                <a href={link.href} className="navbar-link">
+                  {link.name}
+                </a>
+              </li>
+            ))}
+          </ul>
 
-        {/* Join Button */}
-        <a href="#pricing" className="navbar-btn">
-          Join Now
-        </a>
+          {/* Join Button - Desktop */}
+          <a href="#pricing" className="navbar-btn">
+            Join Now
+          </a>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="mobile-menu-btn"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          <span className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}></span>
-        </button>
-      </div>
+          {/* Mobile Menu Button */}
+          <button
+            className="mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <div className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      <div 
+        className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`}
+        onClick={handleLinkClick}
+      ></div>
 
       {/* Mobile Menu */}
       <div className={`mobile-menu ${isMobileMenuOpen ? 'active' : ''}`}>
@@ -86,16 +115,20 @@ function Navbar() {
             key={link.name}
             href={link.href}
             className="mobile-link"
-            onClick={() => setIsMobileMenuOpen(false)}
+            onClick={handleLinkClick}
           >
             {link.name}
           </a>
         ))}
-        <a href="#pricing" className="mobile-join-btn">
+        <a 
+          href="#pricing" 
+          className="mobile-join-btn"
+          onClick={handleLinkClick}
+        >
           Join Now
         </a>
       </div>
-    </nav>
+    </>
   );
 }
 
@@ -413,13 +446,6 @@ function TrainerCard({ trainer }) {
           alt={trainer.name} 
           className="trainer-image"
         />
-        {/* <div className="trainer-overlay">
-          <div className="trainer-social">
-            <a href={trainer.social.instagram} className="social-link">📷</a>
-            <a href={trainer.social.twitter} className="social-link">🐦</a>
-            <a href={trainer.social.linkedin} className="social-link">💼</a>
-          </div>
-        </div> */}
       </div>
 
       {/* Trainer Info */}
@@ -725,7 +751,6 @@ function Contact() {
   // Handle form submit
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here you would normally send the data to a server
     console.log('Form submitted:', formData);
     setIsSubmitted(true);
     
